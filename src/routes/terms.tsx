@@ -52,11 +52,11 @@ function TermsPage() {
   return (
     <SiteLayout>
       {/* HERO */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-accent/40 to-background">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-accent/40 to-background w-full">
         <div className="absolute inset-0 grid-bg opacity-40" aria-hidden />
         <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-primary/15 blur-3xl" aria-hidden />
-        <div className="container-pro relative py-20 md:py-28">
-          <div className="max-w-3xl">
+        <div className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 mx-auto xl:max-w-7xl relative py-20 md:py-28">
+          <div className="w-full max-w-3xl">
             <span className="eyebrow"><Scale className="h-3.5 w-3.5" /> Legal · Terms of Service</span>
             <h1 className="mt-5 text-4xl md:text-6xl font-bold tracking-tight">
               Terms of Service
@@ -80,12 +80,12 @@ function TermsPage() {
       </section>
 
       {/* SUMMARY CARDS */}
-      <section className="border-b border-border bg-surface py-12">
-        <div className="container-pro">
+      <section className="border-b border-border bg-surface py-12 w-full overflow-x-hidden">
+        <div className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 mx-auto xl:max-w-7xl">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-6">
             <Sparkles className="inline h-3.5 w-3.5 mr-1 text-primary" /> Key principles — plain language summary
           </p>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             {[
               { Icon: UserCheck, t: "Be honest", d: "Use a real identity. Provide accurate listings, prices, and descriptions." },
               { Icon: ShoppingBag, t: "Trade fairly", d: "Fulfill orders on time, communicate in good faith, and honour your commitments." },
@@ -108,8 +108,8 @@ function TermsPage() {
       </section>
 
       {/* MAIN CONTENT */}
-      <section className="pb-28 pt-12">
-        <div className="container-pro grid gap-12 lg:grid-cols-[280px_1fr]">
+      <section className="pb-28 pt-12 w-full overflow-x-hidden">
+        <div className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 mx-auto grid gap-12 lg:grid-cols-[260px_1fr] xl:max-w-7xl">
 
           {/* SIDEBAR TOC */}
           <aside className="hidden lg:block">
@@ -140,7 +140,7 @@ function TermsPage() {
           </aside>
 
           {/* ARTICLE */}
-          <article className="max-w-3xl space-y-16 text-sm leading-7 text-muted-foreground">
+          <article className="min-w-0 w-full space-y-16 text-sm leading-7 text-muted-foreground">
 
             <p className="text-base leading-relaxed">
               Welcome to Market360. These Terms of Service (the <strong className="text-foreground">"Terms"</strong>) constitute a
@@ -288,29 +288,18 @@ function TermsPage() {
               <p>
                 Market360 offers the following Account types, each with its own associated terms and capabilities:
               </p>
-              <div className="mt-4 overflow-hidden rounded-xl border border-border">
-                <table className="w-full text-sm">
-                  <thead className="bg-surface">
-                    <tr>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Account Type</th>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Capabilities</th>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">KYC Required</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {[
-                      ["Buyer", "Browse, purchase, review, use wallet", "Basic identity only"],
-                      ["Seller (Individual)", "All buyer features + list products, manage orders, receive payouts", "Full KYC"],
-                      ["Seller (Business)", "All individual seller features + multi-user access, business branding, bulk tools", "Business KYC + registration documents"],
-                    ].map((r) => (
-                      <tr key={r[0]}>
-                        {r.map((c, i) => (
-                          <td key={i} className="px-4 py-3 text-muted-foreground">{c}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mt-4 space-y-3">
+                {[
+                  { type: "Buyer", cap: "Browse, purchase, review, use wallet", kyc: "Basic identity only" },
+                  { type: "Seller (Individual)", cap: "All buyer features + list products, manage orders, receive payouts", kyc: "Full KYC" },
+                  { type: "Seller (Business)", cap: "All individual features + multi-user access, business branding, bulk tools", kyc: "Business KYC + registration documents" },
+                ].map((r) => (
+                  <div key={r.type} className="rounded-xl border border-border bg-surface p-4 space-y-2">
+                    <p className="font-semibold text-foreground text-sm">{r.type}</p>
+                    <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground/70">Capabilities:</span> {r.cap}</p>
+                    <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground/70">KYC:</span> {r.kyc}</p>
+                  </div>
+                ))}
               </div>
             </Section>
 
@@ -452,29 +441,22 @@ function TermsPage() {
                 Market360 monitors Seller performance across several key metrics to maintain marketplace quality. Sellers
                 are expected to maintain:
               </p>
-              <div className="mt-4 overflow-hidden rounded-xl border border-border">
-                <table className="w-full text-sm">
-                  <thead className="bg-surface">
-                    <tr>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Metric</th>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Minimum Standard</th>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Action Below Threshold</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {[
-                      ["Order fulfillment rate", "≥ 95%", "Warning, then listing restriction"],
-                      ["On-time dispatch rate", "≥ 90%", "Warning, then reduced visibility"],
-                      ["Dispute rate", "≤ 3%", "Account review, then suspension"],
-                      ["Average seller rating", "≥ 3.5 / 5.0", "Performance improvement plan"],
-                      ["Response time to buyers", "< 24 hours", "Warning after repeated failures"],
-                    ].map((r) => (
-                      <tr key={r[0]}>
-                        {r.map((c, i) => <td key={i} className="px-4 py-3 text-muted-foreground">{c}</td>)}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mt-4 space-y-3">
+                {[
+                  { metric: "Order fulfillment rate", standard: "≥ 95%", action: "Warning, then listing restriction" },
+                  { metric: "On-time dispatch rate", standard: "≥ 90%", action: "Warning, then reduced visibility" },
+                  { metric: "Dispute rate", standard: "≤ 3%", action: "Account review, then suspension" },
+                  { metric: "Average seller rating", standard: "≥ 3.5 / 5.0", action: "Performance improvement plan" },
+                  { metric: "Response time to buyers", standard: "< 24 hours", action: "Warning after repeated failures" },
+                ].map((r) => (
+                  <div key={r.metric} className="rounded-xl border border-border bg-surface p-4">
+                    <p className="font-semibold text-foreground text-sm">{r.metric}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1">
+                      <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground/70">Minimum:</span> {r.standard}</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground/70">If missed:</span> {r.action}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
               <p className="mt-4">
                 Sellers falling consistently below these standards will receive written notice and a performance improvement
@@ -600,28 +582,21 @@ function TermsPage() {
                 a Listing. Market360 reserves the right to modify its fee structure with 30 days' written notice. Changes to
                 Transaction Fees will not apply retroactively to Orders placed before the effective date of the change.
               </p>
-              <div className="mt-5 overflow-hidden rounded-xl border border-border">
-                <table className="w-full text-sm">
-                  <thead className="bg-surface">
-                    <tr>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Plan</th>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Transaction Fee</th>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Payout Schedule</th>
-                      <th className="px-4 py-3 text-left font-semibold text-foreground">Monthly Volume Limit</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {[
-                      ["Starter (default)", "4.9% per transaction", "T+2 business days", "Le 50,000,000"],
-                      ["Growth", "3.5% per transaction", "T+1 business day", "Le 250,000,000"],
-                      ["Enterprise", "Custom (negotiated)", "Same-day settlement", "Unlimited"],
-                    ].map((r) => (
-                      <tr key={r[0]}>
-                        {r.map((c, i) => <td key={i} className="px-4 py-3 text-muted-foreground">{c}</td>)}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mt-5 space-y-3">
+                {[
+                  { plan: "Starter (default)", fee: "4.9% per transaction", payout: "T+2 business days", limit: "Le 50,000,000 / month" },
+                  { plan: "Growth", fee: "3.5% per transaction", payout: "T+1 business day", limit: "Le 250,000,000 / month" },
+                  { plan: "Enterprise", fee: "Custom (negotiated)", payout: "Same-day settlement", limit: "Unlimited" },
+                ].map((r) => (
+                  <div key={r.plan} className="rounded-xl border border-border bg-surface p-4 space-y-2">
+                    <p className="font-semibold text-foreground text-sm">{r.plan}</p>
+                    <div className="grid grid-cols-1 gap-1">
+                      <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground/70">Fee:</span> {r.fee}</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground/70">Payout:</span> {r.payout}</p>
+                      <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground/70">Volume limit:</span> {r.limit}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <h3 className="text-foreground font-semibold mt-6 mb-2">9.3 Withdrawal Fees</h3>
@@ -655,7 +630,7 @@ function TermsPage() {
                 circumstances. This list is illustrative and not exhaustive. Market360 may remove any Listing and take
                 enforcement action against any Seller that offers items it determines to be prohibited, at its sole discretion.
               </p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="mt-4 grid gap-3">
                 {[
                   "Illegal drugs, narcotics, or controlled substances of any kind.",
                   "Firearms, ammunition, explosives, or weapons of any description, including replica or deactivated weapons.",
@@ -1115,7 +1090,7 @@ function TermsPage() {
                 legal notice to Market360, please contact us using the details below. We will acknowledge receipt of all
                 written communications within 5 business days.
               </p>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {[
                   { icon: <Mail className="h-4 w-4" />, t: "Legal enquiries", v: "legal@market360.shop" },
                   { icon: <Shield className="h-4 w-4" />, t: "Trust & safety reports", v: "trust@market360.shop" },
@@ -1168,14 +1143,14 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24">
-      <div className="flex items-center gap-3 mb-5 pb-4 border-b border-border">
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+    <section id={id} className="scroll-mt-24 w-full min-w-0">
+      <div className="flex items-start gap-3 mb-5 pb-4 border-b border-border">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary mt-0.5">
           {icon}
         </div>
-        <h2 className="text-xl font-bold text-foreground">{title}</h2>
+        <h2 className="text-lg font-bold text-foreground leading-snug">{title}</h2>
       </div>
-      <div className="space-y-0 text-sm leading-7 text-muted-foreground">
+      <div className="w-full min-w-0 space-y-0 text-sm leading-7 text-muted-foreground">
         {children}
       </div>
     </section>
