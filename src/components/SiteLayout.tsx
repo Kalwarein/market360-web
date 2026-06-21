@@ -2,9 +2,10 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useState, useEffect, type ReactNode } from "react";
 import {
   Menu, X, ShoppingBag, Mail, MapPin, Twitter, Facebook, Instagram, Linkedin,
-  Home, Sparkles, Store, Download, FlaskConical, Newspaper, LifeBuoy, MessageCircle, Info, Shield,
+  Home, Sparkles, Store, Download, FlaskConical, Newspaper, LifeBuoy, Info, Shield, ArrowRight,
 } from "lucide-react";
 import logoAsset from "@/assets/market360-logo.png.asset.json";
+import testerImage from "@/assets/flyer-everything.png.asset.json";
 
 const navLinks = [
   { to: "/", label: "Home", Icon: Home },
@@ -20,11 +21,11 @@ const mobileTiles = [
   { to: "/features", label: "Explore Features", desc: "Wallet, analytics, trust", Icon: Sparkles, accent: "from-emerald-100 to-emerald-50" },
   { to: "/seller-solutions", label: "Sell on Market360", desc: "Tools for stores", Icon: Store, accent: "from-green-100 to-emerald-50" },
   { to: "/download", label: "Get the App", desc: "iOS & Android", Icon: Download, accent: "from-lime-100 to-emerald-50" },
-  { to: "/tester", label: "Tester Program", desc: "Shape the future", Icon: FlaskConical, accent: "from-teal-100 to-emerald-50" },
   { to: "/safety", label: "Trust & Safety", desc: "How we protect you", Icon: Shield, accent: "from-emerald-100 to-green-50" },
   { to: "/news", label: "News & Updates", desc: "Product changelog", Icon: Newspaper, accent: "from-emerald-50 to-white" },
   { to: "/help", label: "Help Center", desc: "FAQs & guides", Icon: LifeBuoy, accent: "from-green-50 to-white" },
   { to: "/about", label: "About Market360", desc: "Our story", Icon: Info, accent: "from-emerald-50 to-white" },
+  { to: "/contact", label: "Contact Us", desc: "We're here to help", Icon: Mail, accent: "from-emerald-100 to-emerald-50" },
 ];
 
 export function Logo({ className = "h-9 w-9" }: { className?: string }) {
@@ -42,30 +43,23 @@ export function Logo({ className = "h-9 w-9" }: { className?: string }) {
 }
 
 function PageLoader() {
-  const [initialShow, setInitialShow] = useState(true);
   const isLoading = useRouterState({ select: (s) => s.isLoading || s.isTransitioning });
-  const [routeShow, setRouteShow] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setInitialShow(false), 1000);
-    return () => clearTimeout(t);
-  }, []);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>;
     if (isLoading) {
-      t = setTimeout(() => setRouteShow(true), 80);
-    } else {
-      setRouteShow(false);
+      setShow(true);
+    } else if (show) {
+      t = setTimeout(() => setShow(false), 250);
     }
     return () => clearTimeout(t);
-  }, [isLoading]);
+  }, [isLoading, show]);
 
-  const show = initialShow || routeShow;
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-background/80 backdrop-blur-sm" aria-live="polite" aria-busy="true">
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-background/70 backdrop-blur-sm" aria-live="polite" aria-busy="true">
       <div className="page-spinner" />
     </div>
   );
@@ -109,11 +103,8 @@ function Header({ onOpen }: { onOpen: () => void }) {
 
 function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
@@ -136,11 +127,36 @@ function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void 
       </div>
 
       <div className="flex-1 px-5 py-6">
-        <p className="eyebrow"><Sparkles className="h-3.5 w-3.5" /> Menu</p>
-        <h2 className="mt-3 text-2xl font-bold tracking-tight">Where do you want to go?</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Tap a tile to jump into Market360.</p>
+        <h2 className="text-2xl font-bold tracking-tight">Where do you want to go?</h2>
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        {/* Featured tester program landscape card */}
+        <Link
+          to="/tester"
+          onClick={onClose}
+          className="group relative mt-5 flex overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-elevated"
+        >
+          <div className="flex-1 p-4">
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+              <FlaskConical className="h-3 w-3" /> Now recruiting
+            </span>
+            <p className="mt-2 text-base font-bold leading-tight">Join the Market360 Tester Program</p>
+            <p className="mt-1 text-[11px] text-muted-foreground leading-snug">Early access, perks &amp; influence the roadmap.</p>
+            <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+              Apply now <ArrowRight className="h-3 w-3" />
+            </span>
+          </div>
+          <div className="relative w-32 shrink-0 overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100">
+            <img
+              src={testerImage.url}
+              alt="Market360 tester program"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </Link>
+
+        <div className="mt-5 grid grid-cols-2 gap-3">
           {mobileTiles.map(({ to, label, desc, Icon, accent }) => (
             <Link
               key={to}
@@ -160,36 +176,10 @@ function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void 
           ))}
         </div>
 
-        <div className="mt-8 grid gap-3">
+        <div className="mt-8">
           <Link to="/download" onClick={onClose} className="btn-primary w-full justify-center">
             <Download className="h-4 w-4" /> Download the App
           </Link>
-          <Link to="/contact" onClick={onClose} className="btn-ghost w-full justify-center">
-            <MessageCircle className="h-4 w-4" /> Contact Sales
-          </Link>
-        </div>
-
-        <div className="mt-10 border-t border-border pt-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">All pages</p>
-          <ul className="mt-3 grid grid-cols-2 gap-y-2">
-            {navLinks.map(({ to, label, Icon }) => (
-              <li key={to}>
-                <Link to={to} onClick={onClose} className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
-                  <Icon className="h-4 w-4 text-primary" /> {label}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link to="/about" onClick={onClose} className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
-                <Info className="h-4 w-4 text-primary" /> About
-              </Link>
-            </li>
-            <li>
-              <Link to="/safety" onClick={onClose} className="flex items-center gap-2 py-2 text-sm font-medium text-foreground">
-                <Shield className="h-4 w-4 text-primary" /> Safety
-              </Link>
-            </li>
-          </ul>
         </div>
 
         <div className="mt-8 flex gap-2 pb-10">

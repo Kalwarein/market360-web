@@ -9,6 +9,10 @@ import {
   UserCheck, DollarSign, Repeat, ArrowUpRight,
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
+import flyerEndless from "@/assets/flyer-endless.png.asset.json";
+import flyerDownload from "@/assets/flyer-download.png.asset.json";
+import flyerEverything from "@/assets/flyer-everything.png.asset.json";
+import flyerBuysell from "@/assets/flyer-buysell.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +36,7 @@ function Home() {
   return (
     <SiteLayout>
       <Hero />
+      <FlyerShowcase />
       <TrustBar />
       <PlatformOverview />
       <BuyerExperience />
@@ -50,6 +55,38 @@ function Home() {
       <FAQ />
       <FinalCta />
     </SiteLayout>
+  );
+}
+
+/* ─── FLYER SHOWCASE ────────────────────────────────────────── */
+function FlyerShowcase() {
+  const flyers = [
+    { src: flyerEndless.url, alt: "One App. Endless Opportunities." },
+    { src: flyerEverything.url, alt: "Everything you need. One powerful marketplace." },
+    { src: flyerBuysell.url, alt: "Market360 — Buy. Sell. Pay. Grow." },
+    { src: flyerDownload.url, alt: "Download Market360 Today." },
+  ];
+  return (
+    <section className="section-pad bg-surface border-y border-border">
+      <div className="container-pro">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="eyebrow">The Market360 experience</span>
+          <h2 className="mt-4 text-3xl font-bold sm:text-4xl md:text-5xl">
+            One app. <span className="gradient-text">Endless opportunities.</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground">
+            See how Market360 brings shopping, selling, payments, and delivery into one beautifully simple experience.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2">
+          {flyers.map((f) => (
+            <div key={f.alt} className="surface-card surface-card-hover overflow-hidden p-0">
+              <img src={f.src} alt={f.alt} className="w-full h-auto block" loading="lazy" decoding="async" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
