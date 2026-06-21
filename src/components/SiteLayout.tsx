@@ -41,45 +41,32 @@ export function Logo({ className = "h-9 w-9" }: { className?: string }) {
   );
 }
 
-function RouteLoadingSpinner() {
+function PageLoader() {
+  const [initialShow, setInitialShow] = useState(true);
   const isLoading = useRouterState({ select: (s) => s.isLoading || s.isTransitioning });
-  const [show, setShow] = useState(false);
+  const [routeShow, setRouteShow] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setInitialShow(false), 1000);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>;
     if (isLoading) {
-      t = setTimeout(() => setShow(true), 80);
+      t = setTimeout(() => setRouteShow(true), 80);
     } else {
-      setShow(false);
+      setRouteShow(false);
     }
     return () => clearTimeout(t);
   }, [isLoading]);
 
+  const show = initialShow || routeShow;
   if (!show) return null;
-  return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-background/85 backdrop-blur-sm animate-fade-up" aria-live="polite" aria-busy="true">
-      <div className="flex flex-col items-center gap-4">
-        <div className="page-spinner" />
-        <p className="text-sm font-medium text-muted-foreground">Loading…</p>
-      </div>
-    </div>
-  );
-}
 
-function InitialPageLoader() {
-  const [show, setShow] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setShow(false), 900);
-    return () => clearTimeout(t);
-  }, []);
-  if (!show) return null;
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-background">
-      <div className="flex flex-col items-center gap-4">
-        <Logo className="h-12 w-12 rounded-2xl animate-float" />
-        <div className="page-spinner" />
-        <p className="text-sm font-medium text-muted-foreground">Loading Market360…</p>
-      </div>
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-background/80 backdrop-blur-sm" aria-live="polite" aria-busy="true">
+      <div className="page-spinner" />
     </div>
   );
 }
@@ -310,8 +297,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="flex min-h-dvh flex-col">
-      <InitialPageLoader />
-      <RouteLoadingSpinner />
+      <PageLoader />
       <Header onOpen={() => setMenuOpen(true)} />
       <FullScreenMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="flex-1">{children}</main>
