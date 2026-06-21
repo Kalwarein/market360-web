@@ -297,8 +297,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="flex min-h-dvh flex-col">
-      <InitialPageLoader />
-      <RouteLoadingSpinner />
+      <PageLoader />
       <Header onOpen={() => setMenuOpen(true)} />
       <FullScreenMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="flex-1">{children}</main>
