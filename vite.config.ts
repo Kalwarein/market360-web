@@ -12,4 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Force-enable the Nitro deploy plugin and target Vercel. Without an explicit
+  // `nitro` option, the Lovable config skips the server build entirely when it's
+  // not running inside Lovable's own sandbox (and otherwise defaults to a
+  // Cloudflare target), which is why the Vercel deployment rendered nothing.
+  // Setting `preset: "vercel"` produces a Vercel Build Output (.vercel/output)
+  // that Vercel detects automatically.
+  nitro: {
+    preset: "vercel",
+  },
 });
