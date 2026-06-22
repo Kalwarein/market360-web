@@ -102,16 +102,27 @@ function Header({ onOpen }: { onOpen: () => void }) {
 }
 
 function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
-    if (open) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
+    if (open) {
+      setMounted(true);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      const t = setTimeout(() => setMounted(false), 220);
+      return () => clearTimeout(t);
+    }
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  if (!open) return null;
+  if (!mounted && !open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col bg-background lg:hidden animate-fade-up overflow-y-auto">
+    <div
+      className={`fixed inset-0 z-[60] flex flex-col bg-background lg:hidden overflow-y-auto ${open ? "menu-overlay-anim" : ""}`}
+      aria-hidden={!open}
+    >
       <div className="sticky top-0 flex items-center justify-between border-b border-border/60 bg-background/95 backdrop-blur-xl px-5 h-16">
         <Link to="/" onClick={onClose} className="flex items-center gap-2.5 font-display font-bold text-lg">
           <Logo className="h-9 w-9 rounded-xl" />
@@ -126,14 +137,15 @@ function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void 
         </button>
       </div>
 
-      <div className="flex-1 px-5 py-6">
+      <div className="flex-1 px-5 py-6 menu-panel-anim">
         <h2 className="text-2xl font-bold tracking-tight">Where do you want to go?</h2>
 
         {/* Featured tester program landscape card */}
         <Link
           to="/tester"
           onClick={onClose}
-          className="group relative mt-5 flex overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-elevated"
+          className="group relative mt-5 flex overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-elevated tile-anim"
+          style={{ animationDelay: "60ms" }}
         >
           <div className="flex-1 p-4">
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -157,12 +169,13 @@ function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void 
         </Link>
 
         <div className="mt-5 grid grid-cols-2 gap-3">
-          {mobileTiles.map(({ to, label, desc, Icon, accent }) => (
+          {mobileTiles.map(({ to, label, desc, Icon, accent }, i) => (
             <Link
               key={to}
               to={to}
               onClick={onClose}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-4 min-h-[140px] shadow-soft hover:shadow-elevated transition-all"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-4 min-h-[140px] shadow-soft hover:shadow-elevated transition-all tile-anim"
+              style={{ animationDelay: `${120 + i * 55}ms` }}
             >
               <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${accent} opacity-70`} />
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/70 backdrop-blur ring-1 ring-primary/15">
@@ -176,13 +189,13 @@ function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void 
           ))}
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 tile-anim" style={{ animationDelay: "560ms" }}>
           <Link to="/download" onClick={onClose} className="btn-primary w-full justify-center">
             <Download className="h-4 w-4" /> Download the App
           </Link>
         </div>
 
-        <div className="mt-8 flex gap-2 pb-10">
+        <div className="mt-8 flex gap-2 pb-10 tile-anim" style={{ animationDelay: "620ms" }}>
           {[Twitter, Facebook, Instagram, Linkedin].map((Icon, i) => (
             <a key={i} href="#" className="grid h-11 w-11 place-items-center rounded-full border border-border bg-secondary text-muted-foreground">
               <Icon className="h-4 w-4" />
@@ -193,6 +206,7 @@ function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void 
     </div>
   );
 }
+
 
 function Footer() {
   const cols = [
