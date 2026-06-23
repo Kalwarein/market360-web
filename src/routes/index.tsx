@@ -499,7 +499,13 @@ function SellerExperience() {
   return (
     <section className="section-pad">
       <div className="container-pro grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
-        <div className="order-2 lg:order-1">
+        <div className="order-2 lg:order-1 space-y-5">
+          <figure className="relative overflow-hidden rounded-3xl border border-border shadow-elevated">
+            <img src={imgSeller.url} alt="Sierra Leonean shop owner managing his Market360 store" className="aspect-[5/4] w-full object-cover" loading="lazy" decoding="async" width={1280} height={960} />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur px-3 py-1.5 text-xs font-semibold">
+              <Store className="h-3.5 w-3.5 text-primary" /> Verified seller
+            </div>
+          </figure>
           <div className="surface-card p-6 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Store setup checklist
