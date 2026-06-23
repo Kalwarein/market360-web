@@ -38,7 +38,7 @@ function Home() {
   return (
     <SiteLayout>
       <Hero />
-      <FlyerShowcase />
+      <CardStack3D />
       <TrustBar />
       <PlatformOverview />
       <BuyerExperience />
