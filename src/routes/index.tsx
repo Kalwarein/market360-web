@@ -6,7 +6,7 @@ import {
   Globe, CreditCard, Zap, RefreshCw, Award, MapPin, ChevronDown,
   FileText, Headphones, Clock, BarChart2, PieChart, Activity,
   ShieldCheck, Fingerprint, AlertTriangle, Eye, Package, LayoutGrid,
-  UserCheck, DollarSign, Repeat, ArrowUpRight,
+  UserCheck, DollarSign, Repeat, ArrowUpRight, Sparkles,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
