@@ -2,10 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/SiteLayout";
 import { PageHero } from "@/components/PageHero";
 import { ArrowRight } from "lucide-react";
+import { assetSrc } from "@/lib/asset";
 import flyerEndless from "@/assets/flyer-endless.png.asset.json";
 import flyerDownload from "@/assets/flyer-download.png.asset.json";
 import flyerEverything from "@/assets/flyer-everything.png.asset.json";
 import flyerBuysell from "@/assets/flyer-buysell.png.asset.json";
+
+const endlessImg = assetSrc(flyerEndless, "endless");
+const downloadImg = assetSrc(flyerDownload, "download");
+const everythingImg = assetSrc(flyerEverything, "everything");
+const buysellImg = assetSrc(flyerBuysell, "buysell");
 
 export const Route = createFileRoute("/news")({
   head: () => ({
@@ -26,16 +32,16 @@ const featured = {
   title: "Market360 opens its public tester program",
   excerpt: "We're inviting the community to help shape the next era of Market360 — with early access, perks, and direct influence on the roadmap.",
   date: "Jun 12, 2026",
-  image: flyerEverything.url,
+  image: everythingImg,
 };
 
 const posts = [
-  { category: "Product", title: "Wallet 2.0 ships: faster settlements, lower fees", excerpt: "Get paid in minutes with our re-engineered wallet.", date: "Jun 04, 2026", image: flyerBuysell.url },
-  { category: "Update", title: "Smarter search rolls out to all users", excerpt: "A redesigned discovery engine helps buyers find exactly what they want.", date: "May 22, 2026", image: flyerEndless.url },
-  { category: "Roadmap", title: "What's coming this quarter", excerpt: "Storefronts, bulk uploads, smarter analytics, and more.", date: "May 10, 2026", image: flyerDownload.url },
-  { category: "Trust", title: "New fraud protection layer goes live", excerpt: "Our updated AI model flags risky activity in real-time.", date: "Apr 28, 2026", image: flyerBuysell.url },
-  { category: "Community", title: "Tester spotlights: meet 5 of our top contributors", excerpt: "The people helping us ship better, faster.", date: "Apr 15, 2026", image: flyerEverything.url },
-  { category: "Product", title: "Seller dashboard gets a refresh", excerpt: "Cleaner layout, faster insights, smoother workflows.", date: "Apr 02, 2026", image: flyerEndless.url },
+  { category: "Product", title: "Wallet 2.0 ships: faster settlements, lower fees", excerpt: "Get paid in minutes with our re-engineered wallet.", date: "Jun 04, 2026", image: buysellImg },
+  { category: "Update", title: "Smarter search rolls out to all users", excerpt: "A redesigned discovery engine helps buyers find exactly what they want.", date: "May 22, 2026", image: endlessImg },
+  { category: "Roadmap", title: "What's coming this quarter", excerpt: "Storefronts, bulk uploads, smarter analytics, and more.", date: "May 10, 2026", image: downloadImg },
+  { category: "Trust", title: "New fraud protection layer goes live", excerpt: "Our updated AI model flags risky activity in real-time.", date: "Apr 28, 2026", image: buysellImg },
+  { category: "Community", title: "Tester spotlights: meet 5 of our top contributors", excerpt: "The people helping us ship better, faster.", date: "Apr 15, 2026", image: everythingImg },
+  { category: "Product", title: "Seller dashboard gets a refresh", excerpt: "Cleaner layout, faster insights, smoother workflows.", date: "Apr 02, 2026", image: endlessImg },
 ];
 
 function NewsPage() {

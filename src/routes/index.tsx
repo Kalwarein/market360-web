@@ -10,19 +10,20 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
+import { assetSrc } from "@/lib/asset";
+import imgBuyerAsset from "@/assets/img-buyer.jpg.asset.json";
+import imgSellerAsset from "@/assets/img-seller.jpg.asset.json";
+import imgWalletAsset from "@/assets/img-wallet.jpg.asset.json";
+import imgDeliveryAsset from "@/assets/img-delivery.jpg.asset.json";
+import imgHeroAsset from "@/assets/img-hero.jpg.asset.json";
 
-/* Placeholder helper — renders an inline SVG showing the image name for
-   any asset that isn't present in the project's image directory yet. */
-function ph(name: string, w = 1280, h = 960) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='#e8efe9'/><rect x='1' y='1' width='${w - 2}' height='${h - 2}' fill='none' stroke='#bcd5c4' stroke-width='2'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='600' font-size='${Math.round(w / 22)}' fill='#3a6b4f'>${name}</text></svg>`;
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
-}
-
-const imgBuyer = { url: ph("img-buyer.jpg") };
-const imgSeller = { url: ph("img-seller.jpg") };
-const imgWallet = { url: ph("img-wallet.jpg") };
-const imgDelivery = { url: ph("img-delivery.jpg") };
-const imgHero = { url: ph("img-hero.jpg") };
+/* Resolve each asset: shows the real image when it exists in the project's
+   image directory, otherwise a named placeholder (hero, buyer, …). */
+const imgBuyer = { url: assetSrc(imgBuyerAsset, "buyer") };
+const imgSeller = { url: assetSrc(imgSellerAsset, "seller") };
+const imgWallet = { url: assetSrc(imgWalletAsset, "wallet") };
+const imgDelivery = { url: assetSrc(imgDeliveryAsset, "delivery") };
+const imgHero = { url: assetSrc(imgHeroAsset, "hero") };
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -124,6 +125,37 @@ function CardStack3D() {
     return () => clearInterval(id);
   }, [paused, n]);
 
+  const go = (dir: number) => setActive((a) => (a + dir + n) % n);
+
+  // Horizontal scroll (trackpad / shift-wheel) drives the carousel.
+  const wheelAcc = useRef(0);
+  const wheelLock = useRef(false);
+  const handleWheel = (e: React.WheelEvent) => {
+    const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : 0;
+    if (!dx) return;
+    e.preventDefault();
+    if (wheelLock.current) return;
+    wheelAcc.current += dx;
+    if (Math.abs(wheelAcc.current) > 40) {
+      go(wheelAcc.current > 0 ? 1 : -1);
+      wheelAcc.current = 0;
+      wheelLock.current = true;
+      setTimeout(() => (wheelLock.current = false), 450);
+    }
+  };
+
+  // Touch swipe (mobile) drives the carousel horizontally.
+  const touchX = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    touchX.current = null;
+  };
+
   return (
     <section className="section-pad bg-surface border-y border-border">
       <div className="container-pro">
@@ -139,12 +171,18 @@ function CardStack3D() {
 
         <div
           ref={stageRef}
-          className="relative mx-auto mt-14 flex h-[480px] w-full max-w-3xl items-center justify-center overflow-hidden"
+          className="relative mx-auto mt-14 flex h-[480px] w-full max-w-3xl touch-pan-y items-center justify-center overflow-hidden select-none"
           style={{ perspective: "1400px" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onFocusCapture={() => setPaused(true)}
           onBlurCapture={() => setPaused(false)}
+          onWheel={handleWheel}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          role="group"
+          aria-roledescription="carousel"
+          aria-label="Market360 sides — scroll horizontally to browse"
         >
           {cards.map((c, i) => {
             // rel: -1 = left, 0 = center/front, 1 = right

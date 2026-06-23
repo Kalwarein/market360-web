@@ -3,8 +3,12 @@ import { useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { PageHero } from "@/components/PageHero";
 import { CheckCircle2, Sparkles, MessageCircle, Award, Users, Bug, Rocket, Download, ArrowRight, Apple, PlayCircle, X } from "lucide-react";
+import { assetSrc } from "@/lib/asset";
 import flyerEverything from "@/assets/flyer-everything.png.asset.json";
 import flyerBuysell from "@/assets/flyer-buysell.png.asset.json";
+
+const everythingImg = assetSrc(flyerEverything, "everything");
+const buysellImg = assetSrc(flyerBuysell, "buysell");
 
 export const Route = createFileRoute("/tester")({
   head: () => ({
@@ -87,7 +91,7 @@ function TesterPage() {
           </div>
           <div className="relative">
             <img
-              src={flyerEverything.url}
+              src={everythingImg}
               alt="Market360 — Everything you need. One powerful marketplace."
               className="w-full rounded-3xl border border-border shadow-elevated"
               loading="eager"
@@ -122,7 +126,7 @@ function TesterPage() {
       <section id="join" className="section-pad bg-surface border-y border-border">
         <div className="container-pro grid gap-10 lg:grid-cols-[1.1fr_1fr] items-center">
           <div>
-            <img src={flyerBuysell.url} alt="Market360 — Buy. Sell. Pay. Grow." className="w-full rounded-3xl border border-border shadow-soft" loading="lazy" decoding="async" />
+            <img src={buysellImg} alt="Market360 — Buy. Sell. Pay. Grow." className="w-full rounded-3xl border border-border shadow-soft" loading="lazy" decoding="async" />
           </div>
           <div className="surface-card p-8 md:p-10">
             <span className="eyebrow">Apply now</span>
