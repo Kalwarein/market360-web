@@ -1,26 +1,17 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState, useEffect, type ReactNode } from "react";
+import { Drawer } from "vaul";
 import {
-  Menu, X, ShoppingBag, Mail, MapPin, Twitter, Facebook, Instagram, Linkedin,
-  Home, Sparkles, Store, Download, FlaskConical, Newspaper, LifeBuoy, Info, Shield, ArrowRight,
+  Menu, ShoppingBag, Mail, MapPin, Twitter, Facebook, Instagram, Linkedin,
+  Sparkles, Store, Download, FlaskConical, Newspaper, LifeBuoy, Info, Shield, ArrowRight, X,
 } from "lucide-react";
 import logoAsset from "@/assets/market360-logo.png.asset.json";
-import testerImage from "@/assets/flyer-everything.png.asset.json";
-
-const navLinks = [
-  { to: "/", label: "Home", Icon: Home },
-  { to: "/features", label: "Features", Icon: Sparkles },
-  { to: "/seller-solutions", label: "Sellers", Icon: Store },
-  { to: "/download", label: "Download", Icon: Download },
-  { to: "/tester", label: "Tester Program", Icon: FlaskConical },
-  { to: "/news", label: "News", Icon: Newspaper },
-  { to: "/help", label: "Help", Icon: LifeBuoy },
-];
 
 const mobileTiles = [
   { to: "/features", label: "Explore Features", desc: "Wallet, analytics, trust", Icon: Sparkles, accent: "from-emerald-100 to-emerald-50" },
   { to: "/seller-solutions", label: "Sell on Market360", desc: "Tools for stores", Icon: Store, accent: "from-green-100 to-emerald-50" },
   { to: "/download", label: "Get the App", desc: "iOS & Android", Icon: Download, accent: "from-lime-100 to-emerald-50" },
+  { to: "/tester", label: "Tester Program", desc: "Now recruiting", Icon: FlaskConical, accent: "from-emerald-100 to-green-50" },
   { to: "/safety", label: "Trust & Safety", desc: "How we protect you", Icon: Shield, accent: "from-emerald-100 to-green-50" },
   { to: "/news", label: "News & Updates", desc: "Product changelog", Icon: Newspaper, accent: "from-emerald-50 to-white" },
   { to: "/help", label: "Help Center", desc: "FAQs & guides", Icon: LifeBuoy, accent: "from-green-50 to-white" },
@@ -28,38 +19,27 @@ const mobileTiles = [
   { to: "/contact", label: "Contact Us", desc: "We're here to help", Icon: Mail, accent: "from-emerald-100 to-emerald-50" },
 ];
 
+const navLinks = [
+  { to: "/", label: "Home" },
+  { to: "/features", label: "Features" },
+  { to: "/seller-solutions", label: "Sellers" },
+  { to: "/download", label: "Download" },
+  { to: "/tester", label: "Tester Program" },
+  { to: "/news", label: "News" },
+  { to: "/help", label: "Help" },
+];
+
 export function Logo({ className = "h-9 w-9" }: { className?: string }) {
   return (
-    <img
-      src={logoAsset.url}
-      alt="Market360 logo"
-      className={className}
-      width={40}
-      height={40}
-      loading="eager"
-      decoding="async"
-    />
+    <img src={logoAsset.url} alt="Market360 logo" className={className} width={40} height={40} loading="eager" decoding="async" />
   );
 }
 
 function PageLoader() {
   const isLoading = useRouterState({ select: (s) => s.isLoading || s.isTransitioning });
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    if (isLoading) {
-      setShow(true);
-    } else if (show) {
-      t = setTimeout(() => setShow(false), 250);
-    }
-    return () => clearTimeout(t);
-  }, [isLoading, show]);
-
-  if (!show) return null;
-
+  if (!isLoading) return null;
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-background/70 backdrop-blur-sm" aria-live="polite" aria-busy="true">
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-background/60 backdrop-blur-sm" aria-busy="true">
       <div className="page-spinner" />
     </div>
   );
@@ -75,12 +55,7 @@ function Header({ onOpen }: { onOpen: () => void }) {
         </Link>
         <nav className="hidden lg:flex items-center gap-1" aria-label="Primary">
           {navLinks.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground rounded-md"
-              activeProps={{ className: "text-foreground" }}
-            >
+            <Link key={l.to} to={l.to} className="px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground rounded-md" activeProps={{ className: "text-foreground" }}>
               {l.label}
             </Link>
           ))}
@@ -89,11 +64,7 @@ function Header({ onOpen }: { onOpen: () => void }) {
           <Link to="/contact" className="btn-ghost text-sm py-2 px-4">Contact</Link>
           <Link to="/download" className="btn-primary text-sm py-2 px-4">Get the App</Link>
         </div>
-        <button
-          aria-label="Open menu"
-          className="lg:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary"
-          onClick={onOpen}
-        >
+        <button aria-label="Open menu" className="lg:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary" onClick={onOpen}>
           <Menu className="h-5 w-5" />
         </button>
       </div>
@@ -101,147 +72,146 @@ function Header({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function FullScreenMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [mounted, setMounted] = useState(false);
+function MobileDrawer({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+  return (
+    <Drawer.Root open={open} onOpenChange={onOpenChange} shouldScaleBackground>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm" />
+        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-[60] mt-24 flex h-[88vh] flex-col rounded-t-3xl border-t border-border bg-background outline-none lg:hidden">
+          <Drawer.Title className="sr-only">Navigation menu</Drawer.Title>
+          <Drawer.Description className="sr-only">Browse Market360 sections</Drawer.Description>
+          <div className="mx-auto mt-3 h-1.5 w-12 shrink-0 rounded-full bg-border" />
+          <div className="flex items-center justify-between px-5 pt-3 pb-2">
+            <div className="flex items-center gap-2.5 font-display font-bold text-lg">
+              <Logo className="h-8 w-8 rounded-xl" />
+              <span>Market<span className="text-primary">360</span></span>
+            </div>
+            <p className="text-xs text-muted-foreground">Swipe down to close</p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-5 pb-10 pt-3">
+            <h2 className="text-xl font-bold tracking-tight">Where do you want to go?</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {mobileTiles.map(({ to, label, desc, Icon, accent }, i) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => onOpenChange(false)}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-4 min-h-[130px] shadow-soft tile-anim"
+                  style={{ animationDelay: `${60 + i * 45}ms` }}
+                >
+                  <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${accent} opacity-80`} />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/70 backdrop-blur ring-1 ring-primary/15">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground leading-tight">{label}</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">{desc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <Link
+              to="/download"
+              onClick={() => onOpenChange(false)}
+              className="btn-primary mt-6 w-full justify-center"
+            >
+              <Download className="h-4 w-4" /> Download the App
+            </Link>
+
+            <div className="mt-6 flex justify-center gap-2 pb-6">
+              {[Twitter, Facebook, Instagram, Linkedin].map((Icon, i) => (
+                <a key={i} href="#" className="grid h-10 w-10 place-items-center rounded-full border border-border bg-secondary text-muted-foreground">
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+
+const TESTER_POPUP_KEY = "m360_tester_popup_last";
+
+function TesterPopup() {
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (open) {
-      setMounted(true);
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-      const t = setTimeout(() => setMounted(false), 220);
-      return () => clearTimeout(t);
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
+    try {
+      const last = localStorage.getItem(TESTER_POPUP_KEY);
+      const now = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000;
+      if (!last || now - parseInt(last, 10) > oneDay) {
+        const t = setTimeout(() => setOpen(true), 4500);
+        return () => clearTimeout(t);
+      }
+    } catch {}
+  }, []);
 
-  if (!mounted && !open) return null;
+  const dismiss = () => {
+    try { localStorage.setItem(TESTER_POPUP_KEY, String(Date.now())); } catch {}
+    setOpen(false);
+  };
+
+  if (!open) return null;
 
   return (
-    <div
-      className={`fixed inset-0 z-[60] flex flex-col bg-background lg:hidden overflow-y-auto ${open ? "menu-overlay-anim" : ""}`}
-      aria-hidden={!open}
-    >
-      <div className="sticky top-0 flex items-center justify-between border-b border-border/60 bg-background/95 backdrop-blur-xl px-5 h-16">
-        <Link to="/" onClick={onClose} className="flex items-center gap-2.5 font-display font-bold text-lg">
-          <Logo className="h-9 w-9 rounded-xl" />
-          <span>Market<span className="text-primary">360</span></span>
-        </Link>
-        <button
-          aria-label="Close menu"
-          onClick={onClose}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary"
-        >
-          <X className="h-5 w-5" />
+    <div className="fixed inset-0 z-[80] grid place-items-center bg-black/55 backdrop-blur-sm px-4 menu-overlay-anim" role="dialog" aria-modal="true" aria-label="Join the Market360 Tester Program">
+      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-border bg-card shadow-elevated menu-panel-anim">
+        <button onClick={dismiss} aria-label="Close" className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full bg-background/80 text-muted-foreground hover:text-foreground">
+          <X className="h-4 w-4" />
         </button>
-      </div>
-
-      <div className="flex-1 px-5 py-6 menu-panel-anim">
-        <h2 className="text-2xl font-bold tracking-tight">Where do you want to go?</h2>
-
-        {/* Featured tester program landscape card */}
-        <Link
-          to="/tester"
-          onClick={onClose}
-          className="group relative mt-5 flex overflow-hidden rounded-2xl border border-primary/20 bg-card shadow-elevated tile-anim"
-          style={{ animationDelay: "60ms" }}
-        >
-          <div className="flex-1 p-4">
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-              <FlaskConical className="h-3 w-3" /> Now recruiting
-            </span>
-            <p className="mt-2 text-base font-bold leading-tight">Join the Market360 Tester Program</p>
-            <p className="mt-1 text-[11px] text-muted-foreground leading-snug">Early access, perks &amp; influence the roadmap.</p>
-            <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
-              Apply now <ArrowRight className="h-3 w-3" />
-            </span>
+        <div className="relative h-36 overflow-hidden bg-gradient-to-br from-primary to-primary-glow">
+          <div className="absolute inset-0 grid-bg opacity-30" />
+          <div className="relative grid h-full place-items-center">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/15 backdrop-blur ring-1 ring-white/30">
+              <FlaskConical className="h-8 w-8 text-white" />
+            </div>
           </div>
-          <div className="relative w-32 shrink-0 overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100">
-            <img
-              src={testerImage.url}
-              alt="Market360 tester program"
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        </Link>
-
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          {mobileTiles.map(({ to, label, desc, Icon, accent }, i) => (
-            <Link
-              key={to}
-              to={to}
-              onClick={onClose}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-4 min-h-[140px] shadow-soft hover:shadow-elevated transition-all tile-anim"
-              style={{ animationDelay: `${120 + i * 55}ms` }}
-            >
-              <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${accent} opacity-70`} />
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/70 backdrop-blur ring-1 ring-primary/15">
-                <Icon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground leading-tight">{label}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">{desc}</p>
-              </div>
+        </div>
+        <div className="p-6 text-center">
+          <span className="eyebrow"><Sparkles className="h-3 w-3" /> Now recruiting</span>
+          <h3 className="mt-3 text-xl font-bold tracking-tight">Join the Market360 Tester Program.</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Get early access, exclusive perks, and help shape Sierra Leone's #1 marketplace.
+          </p>
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <button onClick={dismiss} className="btn-ghost w-full justify-center">Maybe later</button>
+            <Link to="/tester" onClick={dismiss} className="btn-primary w-full justify-center">
+              Join now <ArrowRight className="h-4 w-4" />
             </Link>
-          ))}
-        </div>
-
-        <div className="mt-8 tile-anim" style={{ animationDelay: "560ms" }}>
-          <Link to="/download" onClick={onClose} className="btn-primary w-full justify-center">
-            <Download className="h-4 w-4" /> Download the App
-          </Link>
-        </div>
-
-        <div className="mt-8 flex gap-2 pb-10 tile-anim" style={{ animationDelay: "620ms" }}>
-          {[Twitter, Facebook, Instagram, Linkedin].map((Icon, i) => (
-            <a key={i} href="#" className="grid h-11 w-11 place-items-center rounded-full border border-border bg-secondary text-muted-foreground">
-              <Icon className="h-4 w-4" />
-            </a>
-          ))}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-
 function Footer() {
   const cols = [
-    {
-      title: "Product",
-      links: [
-        { to: "/features", label: "Features" },
-        { to: "/seller-solutions", label: "Seller Solutions" },
-        { to: "/download", label: "Download App" },
-        { to: "/safety", label: "Marketplace Safety" },
-      ],
-    },
-    {
-      title: "Company",
-      links: [
-        { to: "/about", label: "About" },
-        { to: "/news", label: "News & Updates" },
-        { to: "/tester", label: "Become a Tester" },
-        { to: "/contact", label: "Contact" },
-      ],
-    },
-    {
-      title: "Resources",
-      links: [
-        { to: "/help", label: "Help Center" },
-        { to: "/safety", label: "Trust & Safety" },
-      ],
-    },
-    {
-      title: "Legal",
-      links: [
-        { to: "/privacy", label: "Privacy Policy" },
-        { to: "/terms", label: "Terms of Service" },
-      ],
-    },
+    { title: "Product", links: [
+      { to: "/features", label: "Features" },
+      { to: "/seller-solutions", label: "Seller Solutions" },
+      { to: "/download", label: "Download App" },
+      { to: "/safety", label: "Marketplace Safety" },
+    ]},
+    { title: "Company", links: [
+      { to: "/about", label: "About" },
+      { to: "/news", label: "News & Updates" },
+      { to: "/tester", label: "Become a Tester" },
+      { to: "/contact", label: "Contact" },
+    ]},
+    { title: "Resources", links: [
+      { to: "/help", label: "Help Center" },
+      { to: "/safety", label: "Trust & Safety" },
+    ]},
+    { title: "Legal", links: [
+      { to: "/privacy", label: "Privacy Policy" },
+      { to: "/terms", label: "Terms of Service" },
+    ]},
   ] as const;
 
   return (
@@ -303,7 +273,8 @@ export function SiteLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <PageLoader />
       <Header onOpen={() => setMenuOpen(true)} />
-      <FullScreenMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileDrawer open={menuOpen} onOpenChange={setMenuOpen} />
+      <TesterPopup />
       <main className="flex-1">{children}</main>
       <Footer />
     </div>

@@ -6,13 +6,15 @@ import {
   Globe, CreditCard, Zap, RefreshCw, Award, MapPin, ChevronDown,
   FileText, Headphones, Clock, BarChart2, PieChart, Activity,
   ShieldCheck, Fingerprint, AlertTriangle, Eye, Package, LayoutGrid,
-  UserCheck, DollarSign, Repeat, ArrowUpRight,
+  UserCheck, DollarSign, Repeat, ArrowUpRight, Sparkles,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
-import flyerEndless from "@/assets/flyer-endless.png.asset.json";
-import flyerDownload from "@/assets/flyer-download.png.asset.json";
-import flyerEverything from "@/assets/flyer-everything.png.asset.json";
-import flyerBuysell from "@/assets/flyer-buysell.png.asset.json";
+import imgBuyer from "@/assets/img-buyer.jpg.asset.json";
+import imgSeller from "@/assets/img-seller.jpg.asset.json";
+import imgWallet from "@/assets/img-wallet.jpg.asset.json";
+import imgDelivery from "@/assets/img-delivery.jpg.asset.json";
+import imgHero from "@/assets/img-hero.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,7 +38,7 @@ function Home() {
   return (
     <SiteLayout>
       <Hero />
-      <FlyerShowcase />
+      <CardStack3D />
       <TrustBar />
       <PlatformOverview />
       <BuyerExperience />
@@ -58,34 +60,123 @@ function Home() {
   );
 }
 
-/* ─── FLYER SHOWCASE ────────────────────────────────────────── */
-function FlyerShowcase() {
-  const flyers = [
-  { src: flyerBuysell.url, alt: "Market360 — Buy. Sell. Pay. Grow." },
+/* ─── 3D CARD STACK (scroll fan-out) ────────────────────────── */
+function CardStack3D() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const vh = window.innerHeight || 800;
+        // 0 when section enters bottom, 1 when section top reaches mid-viewport
+        const raw = 1 - (rect.top - vh * 0.1) / (vh * 0.9);
+        setProgress(Math.max(0, Math.min(1, raw)));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  const cards = [
+    {
+      tag: "For Buyers",
+      title: "Shop verified sellers safely.",
+      desc: "Browse trusted stores, pay securely with escrow, and track every delivery in real time.",
+      Icon: ShoppingBag,
+      img: imgBuyer.url,
+      tint: "from-emerald-500/20 to-emerald-300/10",
+    },
+    {
+      tag: "For Sellers",
+      title: "Launch your store in minutes.",
+      desc: "Pro tools for listings, orders, and customers — without the technical setup.",
+      Icon: Store,
+      img: imgSeller.url,
+      tint: "from-green-500/20 to-lime-300/10",
+    },
+    {
+      tag: "Wallet",
+      title: "Get paid the moment you sell.",
+      desc: "Instant settlements, free internal transfers, and easy mobile money withdrawals.",
+      Icon: Wallet,
+      img: imgWallet.url,
+      tint: "from-emerald-400/20 to-teal-300/10",
+    },
   ];
+
   return (
-    <section className="section-pad bg-surface border-y border-border">
+    <section ref={containerRef} className="section-pad bg-surface border-y border-border">
       <div className="container-pro">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="eyebrow">The Market360 experience</span>
+          <span className="eyebrow"><Sparkles className="h-3 w-3" /> Layered experience</span>
           <h2 className="mt-4 text-3xl font-bold sm:text-4xl md:text-5xl">
-            One app. <span className="gradient-text">Endless opportunities.</span>
+            Three sides. <span className="gradient-text">One marketplace.</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
-            See how Market360 brings shopping, selling, payments, and delivery into one beautifully simple experience.
+            Scroll to unfold how Market360 connects buyers, sellers, and wallet into a single flow.
           </p>
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2">
-          {flyers.map((f) => (
-            <div key={f.alt} className="surface-card surface-card-hover overflow-hidden p-0">
-              <img src={f.src} alt={f.alt} className="w-full h-auto block" loading="lazy" decoding="async" />
-            </div>
-          ))}
+
+        <div
+          className="relative mx-auto mt-14 h-[460px] w-full max-w-3xl"
+          style={{ perspective: "1400px" }}
+        >
+          {cards.map((c, i) => {
+            const center = i - 1; // -1, 0, 1
+            const spread = progress; // 0 → 1
+            const tx = center * 240 * spread;
+            const ty = Math.abs(center) * 14 * (1 - spread) - center * 4 * spread;
+            const rot = center * 14 * spread;
+            const scale = 1 - Math.abs(center) * 0.05 * (1 - spread);
+            return (
+              <div
+                key={c.tag}
+                className="absolute inset-x-0 mx-auto h-[420px] w-[300px] sm:w-[340px] rounded-3xl border border-border bg-card shadow-elevated overflow-hidden transition-[transform,box-shadow] duration-300 ease-out"
+                style={{
+                  transform: `translate3d(${tx}px, ${ty}px, 0) rotate(${rot}deg) scale(${scale})`,
+                  transformStyle: "preserve-3d",
+                  zIndex: 10 - Math.abs(center),
+                }}
+              >
+                <div className="relative h-44 overflow-hidden">
+                  <img src={c.img} alt={c.tag} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${c.tint}`} />
+                </div>
+                <div className="p-5">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    <c.Icon className="h-3 w-3" /> {c.tag}
+                  </span>
+                  <h3 className="mt-3 text-lg font-bold leading-tight">{c.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{c.desc}</p>
+                  <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-primary">
+                    Learn more <ArrowRight className="h-3 w-3" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        <p className="mt-10 text-center text-xs uppercase tracking-wider text-muted-foreground">
+          ↓ Keep scrolling to see the cards fan out
+        </p>
       </div>
     </section>
   );
 }
+
 
 /* ─── HERO ─────────────────────────────────────────────────── */
 function Hero() {
@@ -145,6 +236,9 @@ function Hero() {
 function HeroVisual() {
   return (
     <div className="relative mx-auto w-full max-w-md">
+      <figure className="relative mb-5 overflow-hidden rounded-3xl border border-border shadow-elevated">
+        <img src={imgHero.url} alt="Market360 marketplace lifestyle flatlay" className="aspect-[5/3] w-full object-cover" loading="eager" decoding="async" fetchPriority="high" width={1280} height={960} />
+      </figure>
       <div className="surface-card surface-card-hover relative overflow-hidden rounded-3xl p-6 animate-fade-up">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -354,6 +448,14 @@ function BuyerExperience() {
             </Link>
           </div>
         </div>
+        <div className="space-y-5">
+        <figure className="relative overflow-hidden rounded-3xl border border-border shadow-elevated">
+          <img src={imgBuyer.url} alt="Shopper using Market360 in a Sierra Leone market" className="aspect-[5/4] w-full object-cover" loading="lazy" decoding="async" width={1280} height={960} />
+          <figcaption className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-2xl bg-background/85 backdrop-blur px-3 py-2 text-xs">
+            <span className="flex items-center gap-1.5 font-semibold"><ShieldCheck className="h-3.5 w-3.5 text-primary" /> Buyer protected</span>
+            <span className="text-muted-foreground">Escrow on every order</span>
+          </figcaption>
+        </figure>
         <div className="grid gap-4 sm:grid-cols-2">
           {[
             {
@@ -389,6 +491,7 @@ function BuyerExperience() {
             </div>
           ))}
         </div>
+        </div>
       </div>
     </section>
   );
@@ -399,7 +502,13 @@ function SellerExperience() {
   return (
     <section className="section-pad">
       <div className="container-pro grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
-        <div className="order-2 lg:order-1">
+        <div className="order-2 lg:order-1 space-y-5">
+          <figure className="relative overflow-hidden rounded-3xl border border-border shadow-elevated">
+            <img src={imgSeller.url} alt="Sierra Leonean shop owner managing his Market360 store" className="aspect-[5/4] w-full object-cover" loading="lazy" decoding="async" width={1280} height={960} />
+            <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur px-3 py-1.5 text-xs font-semibold">
+              <Store className="h-3.5 w-3.5 text-primary" /> Verified seller
+            </div>
+          </figure>
           <div className="surface-card p-6 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Store setup checklist
@@ -502,6 +611,13 @@ function WalletShowcase() {
     <section className="section-pad bg-surface border-y border-border">
       <div className="container-pro grid gap-12 lg:grid-cols-2 items-center">
         <div className="order-2 lg:order-1">
+          <figure className="mb-5 relative overflow-hidden rounded-3xl border border-border shadow-elevated">
+            <img src={imgWallet.url} alt="Hands holding a phone showing the Market360 wallet" className="aspect-[5/3] w-full object-cover" loading="lazy" decoding="async" width={1280} height={960} />
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-2xl bg-background/85 backdrop-blur px-3 py-2 text-xs">
+              <span className="flex items-center gap-1.5 font-semibold"><Wallet className="h-3.5 w-3.5 text-primary" /> Instant settlement</span>
+              <span className="text-muted-foreground">Mobile money ready</span>
+            </div>
+          </figure>
           <div className="relative mx-auto max-w-sm">
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-primary-glow p-7 text-primary-foreground shadow-[var(--shadow-elevated)]">
               <div className="flex items-center justify-between">
@@ -1161,7 +1277,14 @@ function DownloadCta() {
             </a>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto lg:mx-0">
+        <div className="space-y-5 max-w-md mx-auto lg:mx-0">
+        <figure className="relative overflow-hidden rounded-3xl border border-border shadow-elevated">
+          <img src={imgDelivery.url} alt="Market360 delivery rider handing a package to a customer" className="aspect-[5/3] w-full object-cover" loading="lazy" decoding="async" width={1280} height={960} />
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur px-3 py-1.5 text-xs font-semibold">
+            <Truck className="h-3.5 w-3.5 text-primary" /> Tracked delivery
+          </div>
+        </figure>
+        <div className="grid grid-cols-2 gap-3">
           {[
             { t: "Fast load times", d: "Under 2 seconds on standard mobile connections." },
             { t: "Offline browsing", d: "View saved stores and listings without active data." },
@@ -1175,6 +1298,7 @@ function DownloadCta() {
               <p className="mt-1 text-xs text-muted-foreground">{f.d}</p>
             </div>
           ))}
+        </div>
         </div>
       </div>
     </section>
