@@ -10,11 +10,20 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
-import imgBuyer from "@/assets/img-buyer.jpg.asset.json";
-import imgSeller from "@/assets/img-seller.jpg.asset.json";
-import imgWallet from "@/assets/img-wallet.jpg.asset.json";
-import imgDelivery from "@/assets/img-delivery.jpg.asset.json";
-import imgHero from "@/assets/img-hero.jpg.asset.json";
+import { assetSrc } from "@/lib/asset";
+import imgBuyerAsset from "@/assets/img-buyer.jpg.asset.json";
+import imgSellerAsset from "@/assets/img-seller.jpg.asset.json";
+import imgWalletAsset from "@/assets/img-wallet.jpg.asset.json";
+import imgDeliveryAsset from "@/assets/img-delivery.jpg.asset.json";
+import imgHeroAsset from "@/assets/img-hero.jpg.asset.json";
+
+/* Resolve each asset: shows the real image when it exists in the project's
+   image directory, otherwise a named placeholder (hero, buyer, …). */
+const imgBuyer = { url: assetSrc(imgBuyerAsset, "buyer") };
+const imgSeller = { url: assetSrc(imgSellerAsset, "seller") };
+const imgWallet = { url: assetSrc(imgWalletAsset, "wallet") };
+const imgDelivery = { url: assetSrc(imgDeliveryAsset, "delivery") };
+const imgHero = { url: assetSrc(imgHeroAsset, "hero") };
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,35 +69,8 @@ function Home() {
   );
 }
 
-/* ─── 3D CARD STACK (scroll fan-out) ────────────────────────── */
+/* ─── AUTO-ROTATING CARD STACK ──────────────────────────────── */
 function CardStack3D() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const el = containerRef.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const vh = window.innerHeight || 800;
-        // 0 when section enters bottom, 1 when section top reaches mid-viewport
-        const raw = 1 - (rect.top - vh * 0.1) / (vh * 0.9);
-        setProgress(Math.max(0, Math.min(1, raw)));
-      });
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
   const cards = [
     {
       tag: "For Buyers",
@@ -116,8 +98,66 @@ function CardStack3D() {
     },
   ];
 
+  const n = cards.length;
+  const [active, setActive] = useState(1); // start on "For Sellers" (center)
+  const [paused, setPaused] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [spread, setSpread] = useState(180);
+
+  // Keep the side-card spread proportional to the available width so the
+  // fan never overflows on small screens.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.clientWidth;
+      setSpread(Math.min(220, Math.max(96, w * 0.3)));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setActive((a) => (a + 1) % n), 3500);
+    return () => clearInterval(id);
+  }, [paused, n]);
+
+  const go = (dir: number) => setActive((a) => (a + dir + n) % n);
+
+  // Horizontal scroll (trackpad / shift-wheel) drives the carousel.
+  const wheelAcc = useRef(0);
+  const wheelLock = useRef(false);
+  const handleWheel = (e: React.WheelEvent) => {
+    const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : 0;
+    if (!dx) return;
+    e.preventDefault();
+    if (wheelLock.current) return;
+    wheelAcc.current += dx;
+    if (Math.abs(wheelAcc.current) > 40) {
+      go(wheelAcc.current > 0 ? 1 : -1);
+      wheelAcc.current = 0;
+      wheelLock.current = true;
+      setTimeout(() => (wheelLock.current = false), 450);
+    }
+  };
+
+  // Touch swipe (mobile) drives the carousel horizontally.
+  const touchX = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    touchX.current = null;
+  };
+
   return (
-    <section ref={containerRef} className="section-pad bg-surface border-y border-border">
+    <section className="section-pad bg-surface border-y border-border">
       <div className="container-pro">
         <div className="mx-auto max-w-2xl text-center">
           <span className="eyebrow"><Sparkles className="h-3 w-3" /> Layered experience</span>
@@ -125,30 +165,44 @@ function CardStack3D() {
             Three sides. <span className="gradient-text">One marketplace.</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Scroll to unfold how Market360 connects buyers, sellers, and wallet into a single flow.
+            See how Market360 connects buyers, sellers, and wallet into a single flow.
           </p>
         </div>
 
         <div
-          className="relative mx-auto mt-14 h-[460px] w-full max-w-3xl"
+          ref={stageRef}
+          className="relative mx-auto mt-14 flex h-[480px] w-full max-w-3xl touch-pan-y items-center justify-center overflow-hidden select-none"
           style={{ perspective: "1400px" }}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={() => setPaused(false)}
+          onWheel={handleWheel}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          role="group"
+          aria-roledescription="carousel"
+          aria-label="Market360 sides — scroll horizontally to browse"
         >
           {cards.map((c, i) => {
-            const center = i - 1; // -1, 0, 1
-            const spread = progress; // 0 → 1
-            const tx = center * 240 * spread;
-            const ty = Math.abs(center) * 14 * (1 - spread) - center * 4 * spread;
-            const rot = center * 14 * spread;
-            const scale = 1 - Math.abs(center) * 0.05 * (1 - spread);
+            // rel: -1 = left, 0 = center/front, 1 = right
+            let rel = i - active;
+            if (rel > n / 2) rel -= n;
+            if (rel < -n / 2) rel += n;
+            const isFront = rel === 0;
+            const tx = rel * spread;
+            const rot = rel * 8;
+            const scale = isFront ? 1 : 0.88;
             return (
               <div
                 key={c.tag}
-                className="absolute inset-x-0 mx-auto h-[420px] w-[300px] sm:w-[340px] rounded-3xl border border-border bg-card shadow-elevated overflow-hidden transition-[transform,box-shadow] duration-300 ease-out"
+                className="absolute h-[420px] w-[78vw] max-w-xs rounded-3xl border border-border bg-card shadow-elevated overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  transform: `translate3d(${tx}px, ${ty}px, 0) rotate(${rot}deg) scale(${scale})`,
-                  transformStyle: "preserve-3d",
-                  zIndex: 10 - Math.abs(center),
+                  transform: `translateX(${tx}px) rotate(${rot}deg) scale(${scale})`,
+                  zIndex: isFront ? 20 : 10,
+                  opacity: isFront ? 1 : 0.65,
                 }}
+                aria-hidden={!isFront}
               >
                 <div className="relative h-44 overflow-hidden">
                   <img src={c.img} alt={c.tag} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
@@ -169,9 +223,18 @@ function CardStack3D() {
           })}
         </div>
 
-        <p className="mt-10 text-center text-xs uppercase tracking-wider text-muted-foreground">
-          ↓ Keep scrolling to see the cards fan out
-        </p>
+        <div className="mt-10 flex justify-center gap-2.5">
+          {cards.map((c, i) => (
+            <button
+              key={c.tag}
+              type="button"
+              onClick={() => setActive(i)}
+              aria-label={`Show ${c.tag} card`}
+              aria-current={i === active}
+              className={`h-2 rounded-full transition-all duration-300 ${i === active ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-primary/40"}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
