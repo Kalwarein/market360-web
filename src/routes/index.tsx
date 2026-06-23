@@ -8,7 +8,7 @@ import {
   ShieldCheck, Fingerprint, AlertTriangle, Eye, Package, LayoutGrid,
   UserCheck, DollarSign, Repeat, ArrowUpRight, Sparkles,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 
 /* Placeholder helper — renders an inline SVG showing the image name for
@@ -97,16 +97,32 @@ function CardStack3D() {
     },
   ];
 
-  const [active, setActive] = useState(0);
+  const n = cards.length;
+  const [active, setActive] = useState(1); // start on "For Sellers" (center)
   const [paused, setPaused] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [spread, setSpread] = useState(180);
+
+  // Keep the side-card spread proportional to the available width so the
+  // fan never overflows on small screens.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.clientWidth;
+      setSpread(Math.min(220, Math.max(96, w * 0.3)));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (paused) return;
-    const id = setInterval(() => {
-      setActive((a) => (a + 1) % cards.length);
-    }, 3500);
+    const id = setInterval(() => setActive((a) => (a + 1) % n), 3500);
     return () => clearInterval(id);
-  }, [paused, cards.length]);
+  }, [paused, n]);
 
   return (
     <section className="section-pad bg-surface border-y border-border">
@@ -122,7 +138,8 @@ function CardStack3D() {
         </div>
 
         <div
-          className="relative mx-auto mt-14 h-[460px] w-full max-w-sm"
+          ref={stageRef}
+          className="relative mx-auto mt-14 flex h-[480px] w-full max-w-3xl items-center justify-center overflow-hidden"
           style={{ perspective: "1400px" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -130,19 +147,22 @@ function CardStack3D() {
           onBlurCapture={() => setPaused(false)}
         >
           {cards.map((c, i) => {
-            const n = cards.length;
-            const pos = (i - active + n) % n; // 0 = front, then stacked behind
-            const ty = pos * 24;
-            const scale = 1 - pos * 0.06;
-            const isFront = pos === 0;
+            // rel: -1 = left, 0 = center/front, 1 = right
+            let rel = i - active;
+            if (rel > n / 2) rel -= n;
+            if (rel < -n / 2) rel += n;
+            const isFront = rel === 0;
+            const tx = rel * spread;
+            const rot = rel * 8;
+            const scale = isFront ? 1 : 0.88;
             return (
               <div
                 key={c.tag}
-                className="absolute inset-x-0 mx-auto h-[420px] w-[86vw] max-w-sm rounded-3xl border border-border bg-card shadow-elevated overflow-hidden transition-all duration-700 ease-out"
+                className="absolute h-[420px] w-[78vw] max-w-xs rounded-3xl border border-border bg-card shadow-elevated overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  transform: `translateY(${ty}px) scale(${scale})`,
-                  zIndex: n - pos,
-                  opacity: isFront ? 1 : 0.6,
+                  transform: `translateX(${tx}px) rotate(${rot}deg) scale(${scale})`,
+                  zIndex: isFront ? 20 : 10,
+                  opacity: isFront ? 1 : 0.65,
                 }}
                 aria-hidden={!isFront}
               >
