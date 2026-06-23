@@ -236,6 +236,9 @@ function Hero() {
 function HeroVisual() {
   return (
     <div className="relative mx-auto w-full max-w-md">
+      <figure className="relative mb-5 overflow-hidden rounded-3xl border border-border shadow-elevated">
+        <img src={imgHero.url} alt="Market360 marketplace lifestyle flatlay" className="aspect-[5/3] w-full object-cover" loading="eager" decoding="async" fetchPriority="high" width={1280} height={960} />
+      </figure>
       <div className="surface-card surface-card-hover relative overflow-hidden rounded-3xl p-6 animate-fade-up">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
