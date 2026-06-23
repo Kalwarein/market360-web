@@ -8,11 +8,13 @@ import {
   ShieldCheck, Fingerprint, AlertTriangle, Eye, Package, LayoutGrid,
   UserCheck, DollarSign, Repeat, ArrowUpRight,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
-import flyerEndless from "@/assets/flyer-endless.png.asset.json";
-import flyerDownload from "@/assets/flyer-download.png.asset.json";
-import flyerEverything from "@/assets/flyer-everything.png.asset.json";
-import flyerBuysell from "@/assets/flyer-buysell.png.asset.json";
+import imgBuyer from "@/assets/img-buyer.jpg.asset.json";
+import imgSeller from "@/assets/img-seller.jpg.asset.json";
+import imgWallet from "@/assets/img-wallet.jpg.asset.json";
+import imgDelivery from "@/assets/img-delivery.jpg.asset.json";
+import imgHero from "@/assets/img-hero.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
