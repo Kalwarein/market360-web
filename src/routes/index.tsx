@@ -8,13 +8,21 @@ import {
   ShieldCheck, Fingerprint, AlertTriangle, Eye, Package, LayoutGrid,
   UserCheck, DollarSign, Repeat, ArrowUpRight, Sparkles,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
-import imgBuyer from "@/assets/img-buyer.jpg.asset.json";
-import imgSeller from "@/assets/img-seller.jpg.asset.json";
-import imgWallet from "@/assets/img-wallet.jpg.asset.json";
-import imgDelivery from "@/assets/img-delivery.jpg.asset.json";
-import imgHero from "@/assets/img-hero.jpg.asset.json";
+
+/* Placeholder helper — renders an inline SVG showing the image name for
+   any asset that isn't present in the project's image directory yet. */
+function ph(name: string, w = 1280, h = 960) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='#e8efe9'/><rect x='1' y='1' width='${w - 2}' height='${h - 2}' fill='none' stroke='#bcd5c4' stroke-width='2'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='600' font-size='${Math.round(w / 22)}' fill='#3a6b4f'>${name}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+const imgBuyer = { url: ph("img-buyer.jpg") };
+const imgSeller = { url: ph("img-seller.jpg") };
+const imgWallet = { url: ph("img-wallet.jpg") };
+const imgDelivery = { url: ph("img-delivery.jpg") };
+const imgHero = { url: ph("img-hero.jpg") };
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,35 +68,8 @@ function Home() {
   );
 }
 
-/* ─── 3D CARD STACK (scroll fan-out) ────────────────────────── */
+/* ─── AUTO-ROTATING CARD STACK ──────────────────────────────── */
 function CardStack3D() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const el = containerRef.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const vh = window.innerHeight || 800;
-        // 0 when section enters bottom, 1 when section top reaches mid-viewport
-        const raw = 1 - (rect.top - vh * 0.1) / (vh * 0.9);
-        setProgress(Math.max(0, Math.min(1, raw)));
-      });
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
   const cards = [
     {
       tag: "For Buyers",
@@ -116,8 +97,19 @@ function CardStack3D() {
     },
   ];
 
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => {
+      setActive((a) => (a + 1) % cards.length);
+    }, 3500);
+    return () => clearInterval(id);
+  }, [paused, cards.length]);
+
   return (
-    <section ref={containerRef} className="section-pad bg-surface border-y border-border">
+    <section className="section-pad bg-surface border-y border-border">
       <div className="container-pro">
         <div className="mx-auto max-w-2xl text-center">
           <span className="eyebrow"><Sparkles className="h-3 w-3" /> Layered experience</span>
@@ -125,30 +117,34 @@ function CardStack3D() {
             Three sides. <span className="gradient-text">One marketplace.</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Scroll to unfold how Market360 connects buyers, sellers, and wallet into a single flow.
+            See how Market360 connects buyers, sellers, and wallet into a single flow.
           </p>
         </div>
 
         <div
-          className="relative mx-auto mt-14 h-[460px] w-full max-w-3xl"
+          className="relative mx-auto mt-14 h-[460px] w-full max-w-sm"
           style={{ perspective: "1400px" }}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={() => setPaused(false)}
         >
           {cards.map((c, i) => {
-            const center = i - 1; // -1, 0, 1
-            const spread = progress; // 0 → 1
-            const tx = center * 240 * spread;
-            const ty = Math.abs(center) * 14 * (1 - spread) - center * 4 * spread;
-            const rot = center * 14 * spread;
-            const scale = 1 - Math.abs(center) * 0.05 * (1 - spread);
+            const n = cards.length;
+            const pos = (i - active + n) % n; // 0 = front, then stacked behind
+            const ty = pos * 24;
+            const scale = 1 - pos * 0.06;
+            const isFront = pos === 0;
             return (
               <div
                 key={c.tag}
-                className="absolute inset-x-0 mx-auto h-[420px] w-[300px] sm:w-[340px] rounded-3xl border border-border bg-card shadow-elevated overflow-hidden transition-[transform,box-shadow] duration-300 ease-out"
+                className="absolute inset-x-0 mx-auto h-[420px] w-[86vw] max-w-sm rounded-3xl border border-border bg-card shadow-elevated overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  transform: `translate3d(${tx}px, ${ty}px, 0) rotate(${rot}deg) scale(${scale})`,
-                  transformStyle: "preserve-3d",
-                  zIndex: 10 - Math.abs(center),
+                  transform: `translateY(${ty}px) scale(${scale})`,
+                  zIndex: n - pos,
+                  opacity: isFront ? 1 : 0.6,
                 }}
+                aria-hidden={!isFront}
               >
                 <div className="relative h-44 overflow-hidden">
                   <img src={c.img} alt={c.tag} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
@@ -169,9 +165,18 @@ function CardStack3D() {
           })}
         </div>
 
-        <p className="mt-10 text-center text-xs uppercase tracking-wider text-muted-foreground">
-          ↓ Keep scrolling to see the cards fan out
-        </p>
+        <div className="mt-10 flex justify-center gap-2.5">
+          {cards.map((c, i) => (
+            <button
+              key={c.tag}
+              type="button"
+              onClick={() => setActive(i)}
+              aria-label={`Show ${c.tag} card`}
+              aria-current={i === active}
+              className={`h-2 rounded-full transition-all duration-300 ${i === active ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-primary/40"}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
