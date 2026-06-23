@@ -1274,7 +1274,14 @@ function DownloadCta() {
             </a>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto lg:mx-0">
+        <div className="space-y-5 max-w-md mx-auto lg:mx-0">
+        <figure className="relative overflow-hidden rounded-3xl border border-border shadow-elevated">
+          <img src={imgDelivery.url} alt="Market360 delivery rider handing a package to a customer" className="aspect-[5/3] w-full object-cover" loading="lazy" decoding="async" width={1280} height={960} />
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur px-3 py-1.5 text-xs font-semibold">
+            <Truck className="h-3.5 w-3.5 text-primary" /> Tracked delivery
+          </div>
+        </figure>
+        <div className="grid grid-cols-2 gap-3">
           {[
             { t: "Fast load times", d: "Under 2 seconds on standard mobile connections." },
             { t: "Offline browsing", d: "View saved stores and listings without active data." },
